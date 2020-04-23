@@ -20,7 +20,7 @@ jobs:
           run: npm run test:coverage 
         - name: Creating coverage report
           run: |
-            ${{ github.workspace }}/bin/cc-custom-test-reporter format-coverage --debug --prefix ${{ github.workspace }} --output ${{ env.APP_WORKSPACE }}/coverage/codeclimate.json -t lcov ${{ env.APP_WORKSPACE }}/coverage/lcov.info
+            ${{ github.workspace }}/bin/cc-custom-test-reporter format-coverage --debug --prefix ${{ github.workspace }} --add-prefix react-example --output ${{ env.APP_WORKSPACE }}/coverage/codeclimate.json -t lcov ${{ env.APP_WORKSPACE }}/coverage/lcov.info
           working-directory: ${{ github.workspace }}
         - name: Uploading artifact
           uses: actions/upload-artifact@master
@@ -49,7 +49,7 @@ jobs:
           run: npm run test:coverage 
         - name: Creating coverage report
           run: |
-            ${{ github.workspace }}/bin/cc-custom-test-reporter format-coverage --debug --prefix ${{ github.workspace }} --output ${{ env.APP_WORKSPACE }}/coverage/codeclimate.json -t lcov ${{ env.APP_WORKSPACE }}/coverage/lcov.info
+            ${{ github.workspace }}/bin/cc-custom-test-reporter format-coverage --debug --prefix ${{ github.workspace }} --add-prefix express-example --output ${{ env.APP_WORKSPACE }}/coverage/codeclimate.json -t lcov ${{ env.APP_WORKSPACE }}/coverage/lcov.info
           working-directory: ${{ github.workspace }}
         - name: Uploading artifact
           uses: actions/upload-artifact@master
