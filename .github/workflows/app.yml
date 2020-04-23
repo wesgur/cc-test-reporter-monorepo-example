@@ -76,7 +76,7 @@ jobs:
             path: react-example/coverage
         - name: Join coverage
           run: |
-            ${{ github.workspace }}/bin/cc-test-reporter sum-coverage **/coverage/codeclimate.json -p 2 -o coverage/codeclimate.total.json
+            ${{ github.workspace }}/bin/cc-custom-test-reporter sum-coverage **/coverage/codeclimate.json -p 2 -o coverage/codeclimate.total.json
         - name: Cat coverage
           run: |
             cat coverage/codeclimate.total.json
