@@ -1,0 +1,89 @@
+name: app
+on: [push]
+jobs:
+    build-react:
+        name: Build React
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: react-example
+        env:
+            APP_WORKSPACE: ${{ github.workspace }}/react-example
+        steps:
+        - uses: actions/checkout@master
+        - name: Installing dependencies
+          run: npm install
+        - name: Code Climate Pre-build
+          run: |
+            ${{ github.workspace }}/bin/cc-custom-test-reporter before-build  
+        - name: Running tests
+          run: npm run test:coverage 
+        - name: Creating coverage report
+          run: |
+            ${{ github.workspace }}/bin/cc-custom-test-reporter format-coverage --debug --prefix ${{ github.workspace }} --output ${{ env.APP_WORKSPACE }}/coverage/codeclimate.json -t lcov ${{ env.APP_WORKSPACE }}/coverage/lcov.info
+          working-directory: ${{ github.workspace }}
+        - name: Uploading artifact
+          uses: actions/upload-artifact@master
+          with:
+            name: react-coverage-${{ github.run_number }}
+            path: ${{ env.APP_WORKSPACE }}/coverage
+
+    build-express:
+        name: Build Express
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: express-example
+        env:
+            APP_WORKSPACE: ${{ github.workspace }}/express-example
+        steps:
+        - uses: actions/checkout@master
+        - name: Setup nodejs
+          uses: actions/setup-node@v1
+        - name: Installing dependencies
+          run: npm install
+        - name: Code Climate Pre-build
+          run: |
+            ${{ github.workspace }}/bin/cc-custom-test-reporter before-build  
+        - name: Running tests
+          run: npm run test:coverage 
+        - name: Creating coverage report
+          run: |
+            ${{ github.workspace }}/bin/cc-custom-test-reporter format-coverage --debug --prefix ${{ github.workspace }} --output ${{ env.APP_WORKSPACE }}/coverage/codeclimate.json -t lcov ${{ env.APP_WORKSPACE }}/coverage/lcov.info
+          working-directory: ${{ github.workspace }}
+        - name: Uploading artifact
+          uses: actions/upload-artifact@master
+          with:
+            name: express-coverage-${{ github.run_number }}
+            path: ${{ env.APP_WORKSPACE }}/coverage
+    coverage:
+        needs: [ build-react, build-express ]
+        name: Publish Coverage
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v2
+        - name: Setup node 10
+          uses: actions/setup-node@v1   
+          with:
+            node-version: 10.x
+        - uses: actions/download-artifact@master
+          with:
+            name: express-coverage-${{ github.run_number }}
+            path: express-example/coverage
+        - uses: actions/download-artifact@master
+          with:
+            name: react-coverage-${{ github.run_number }}
+            path: react-example/coverage
+        - name: Join coverage
+          run: |
+            ${{ github.workspace }}/bin/cc-test-reporter sum-coverage **/coverage/codeclimate.json -p 2 -o coverage/codeclimate.total.json
+        - name: Cat coverage
+          run: |
+            cat coverage/codeclimate.total.json
+        # - name: Publish code coverage to Code Climate
+        #   run: |
+        #     ${{ github.workspace }}/bin/cc-test-reporter upload-coverage --debug -i coverage/codeclimate.total.json -r ${{ secrets.CODE_CLIMATE_REPORTER_ID }}
+
+
+
+
